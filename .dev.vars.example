@@ -1,0 +1,69 @@
+# OPERA Piloto Automatico · variaveis do Worker
+#
+# Cadastre cada uma no painel da Cloudflare, no seu Worker, em
+# Settings -> Variables and Secrets. As 8 do bloco OBRIGATORIAS entram como
+# Secret. As de ajuste podem entrar como texto normal.
+#
+# Este arquivo e so um modelo. Nunca coloque valor de verdade aqui.
+#
+# Alem das variaveis, este Worker usa um KV chamado ESTADO (idempotencia da
+# regua). Pelo botao de deploy ele e criado sozinho. No terminal:
+#   wrangler kv namespace create ESTADO
+# e cole o id no bloco [[kv_namespaces]] do wrangler.toml.
+
+# ─── OBRIGATORIAS ──────────────────────────────────────────────────────────
+
+# Uma senha que voce inventa (32 caracteres aleatorios servem). Protege o
+# disparo manual de teste. Trate como senha.
+MCP_SECRET=
+
+# Kommo (CRM)
+KOMMO_SUBDOMAIN=            # so a parte antes de .kommo.com
+KOMMO_TOKEN=                # token de longa duracao, com permissao de escrita
+
+# Asaas (financeiro)
+ASAAS_API_KEY=
+
+# Z-API (WhatsApp)
+ZAPI_INSTANCE_ID=
+ZAPI_INSTANCE_TOKEN=
+ZAPI_CLIENT_TOKEN=
+
+# Seu WhatsApp, o que vai receber os avisos. So digitos, com DDI 55.
+NOTIFY_PHONE=               # ex.: 5511999999999
+
+# ─── AJUSTES (todas tem padrao, mexa so se quiser) ─────────────────────────
+
+# Desliga automacao sem editar codigo. Chaves separadas por virgula.
+# Validas: alerta-lead-novo, briefing-diario, review-semanal, regua-cobranca,
+#          cutucao-tarefa-vencida, relatorio-funil, fecho-do-dia
+# O downsell de R$147 e exatamente isto: AUTOMACOES_DESLIGADAS=relatorio-funil
+AUTOMACOES_DESLIGADAS=
+
+# Etapa de "venda ganha" do seu funil no Kommo. Se voce nao setar, o Worker
+# descobre sozinho pela API (etapas do tipo "ganho"). So preencha se quiser
+# forcar uma etapa especifica.
+KOMMO_STATUS_GANHO=
+
+# Tipo de tarefa "reuniao" no Kommo, usado pra contar reunioes marcadas e feitas.
+# O padrao do Kommo e 2. So mexa se a sua conta usar um tipo customizado, senao
+# a contagem de reunioes fica errada em silencio.
+KOMMO_TASK_TYPE_REUNIAO=
+
+# Prazo (em minutos) da tarefa de follow-up criada quando entra lead novo.
+# Padrao 60. A urgencia dos 5 minutos vive na mensagem de WhatsApp, que chega na
+# hora. Prazo curto demais na tarefa faz ela nascer vencida e sujar o relatorio.
+FOLLOWUP_MINUTOS=
+
+# Regua de cobranca
+REGUA_COBRANCA_ATIVA=       # "true" pra enviar de verdade. Sem isso, roda em
+                            # modo seguro: mostra quem seria cobrado e nao envia.
+REGUA_ESTAGIOS=             # padrao "1,3,7,15,30" (dias de atraso que disparam)
+REGUA_MAX_ENVIOS=           # padrao 20 (teto por rodada, pra nunca virar rajada)
+REGUA_PAUSA_MS=             # padrao 1500 (pausa entre um envio e outro)
+NOME_EMPRESA=               # sua agencia, na assinatura do lembrete
+LINK_PAGAMENTO=             # link fixo de pagamento, pra facilitar o acerto
+
+# Cutucao de tarefa vencida
+CUTUCAO_INDIVIDUAL_ATIVO=   # "true" pra cutucar cada pessoa do time direto
+CUTUCAO_TELEFONES=          # id do usuario Kommo:telefone, separados por virgula

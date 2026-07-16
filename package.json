@@ -1,0 +1,13 @@
+{
+  "name": "opera-piloto-automatico",
+  "version": "1.0.0",
+  "private": false,
+  "description": "Conector Piloto Automático para o Claude, via MCP. Parte do OPERA.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^3.90.0"
+  }
+}

@@ -1,0 +1,50 @@
+# OPERA Piloto Automatico · Worker de disparo (Cloudflare Workers + Cron)
+# 7 automacoes de WhatsApp rodando sozinhas, todas dentro de UM unico cron.
+name = "opera-piloto-automatico"
+main = "src/index.js"
+compatibility_date = "2024-11-01"
+
+# Observabilidade desligada de proposito.
+# Com ela ligada a Cloudflare guarda o corpo das requisicoes, e a URL de
+# disparo manual carrega o MCP_SECRET. Um print de log num chamado de suporte
+# entregaria o controle do Worker. Se precisar depurar: ligue, depure, desligue.
+[observability]
+enabled = false
+
+# UM cron so. O plano gratuito da Cloudflare permite no maximo 5 cron triggers
+# por Worker, entao 7 automacoes em 7 crons nao publicam no free de jeito nenhum.
+# A batida de 5 em 5 minutos ja e necessaria pela regra dos 5 minutos do lead
+# novo, e o src/index.js despacha as outras 6 pelo horario de Brasilia.
+# Voce nao precisa mexer aqui pra nada.
+[triggers]
+crons = ["*/5 * * * *"]
+
+# Horarios (America/Sao_Paulo, ja tratados no codigo):
+#   a cada 5 min  alerta de lead novo (regra dos 5 minutos da rotina SDR)
+#   07h00         briefing diario
+#   08h00 (seg)   review semanal
+#   09h00         regua de cobranca
+#   11h00         cutucao de tarefa vencida
+#   18h00         relatorio de funil
+#   18h30         fecho do dia
+#
+# Pra LIGAR ou DESLIGAR automacao, nao edite codigo nem cron. Use a variavel
+# de ambiente AUTOMACOES_DESLIGADAS, com as chaves separadas por virgula:
+#
+#   AUTOMACOES_DESLIGADAS = "relatorio-funil"
+#
+# Chaves validas: alerta-lead-novo, briefing-diario, review-semanal,
+# regua-cobranca, cutucao-tarefa-vencida, relatorio-funil, fecho-do-dia.
+#
+# O downsell de R$147 e exatamente isto: AUTOMACOES_DESLIGADAS = "relatorio-funil".
+
+# Estado da regua de cobranca (idempotencia). Guarda "esta cobranca ja foi
+# cobrada neste estagio" pra que um tick duplicado do cron nao cobre o cliente
+# duas vezes no WhatsApp. O `id` fica de fora DE PROPOSITO: sem id, a Cloudflare
+# cria o KV sozinha na conta de quem clica no botao de deploy. Com placeholder,
+# o deploy quebraria na validacao.
+[[kv_namespaces]]
+binding = "ESTADO"
+
+# account_id NAO fica aqui. Cada cliente publica na propria conta Cloudflare
+# (a conta em que rodou o login).
